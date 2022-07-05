@@ -11,7 +11,7 @@ const ProjectScreen = () => {
           <ProjectComponent
             name='Parrots Of The Caribbean NFT'
             skills='React | Solidity | Foundry | Node.js | C++ | PHP'
-            image='./images/POTC Screenshot.png'
+            image='./images/potc-screenshot.png'
             demo='https://parrotsofthecaribbean.com/'
             github='https://github.com/jourdanDunkley/POTC'
             description='Parrots Of The Caribbean is an NFT Project I launched. I led a team of 15 members, consisting of 

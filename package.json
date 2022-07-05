@@ -12,6 +12,7 @@
     "bootstrap": "^4.6.0",
     "dotenv": "^8.2.0",
     "emailjs-com": "^2.6.4",
+    "gh-pages": "^4.0.0",
     "react": "^17.0.1",
     "react-bootstrap": "^1.5.2",
     "react-dom": "^17.0.1",
@@ -26,7 +27,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject", 
+    "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
