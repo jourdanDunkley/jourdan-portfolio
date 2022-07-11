@@ -11,7 +11,7 @@ const ProjectScreen = () => {
           <ProjectComponent
             name='Parrots Of The Caribbean NFT'
             skills='React | Solidity | Foundry | Node.js | C++ | PHP'
-            image='./images/potc-screenshot.png'
+            image={process.env.PUBLIC_URL + '/images/potc-screenshot.png'}
             demo='https://parrotsofthecaribbean.com/'
             github='https://github.com/jourdanDunkley/POTC'
             description='Parrots Of The Caribbean is an NFT Project I launched. I led a team of 15 members, consisting of 
@@ -23,7 +23,7 @@ const ProjectScreen = () => {
           <ProjectComponent
             name='Parrots Of The Caribbean Staking'
             skills='React | Solidity | Foundry'
-            image='./images/potc-staking.png'
+            image={process.env.PUBLIC_URL + '/images/potc-staking.png'}
             github='https://github.com/jourdanDunkley/POTC-Staking'
             description='I implemented a Staking system for Parrots of the Caribbean in which holders of the NFT can stake it for
             a an ERC-20 Token reward. This consisted of two contracts: The staking contract and the ERC-20 contract. I audited these
@@ -33,7 +33,7 @@ const ProjectScreen = () => {
           <ProjectComponent
             name='Laravel Bookstore'
             skills='PHP | Laravel | Javascript'
-            image='./images/Wipaybookstore.png'
+            image={process.env.PUBLIC_URL + '/images/Wipaybookstore.png'}
             github='https://github.com/jourdanDunkley/WipayBookStore'
             description='This is a Laravel Application built to satisfy a backend developer challenge by Wipay. 
             This application is a web-based bookstore whose primary purpose is serving API requests.

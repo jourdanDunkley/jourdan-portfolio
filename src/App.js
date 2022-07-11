@@ -7,6 +7,7 @@ import ContactScreen from './screens/ContactScreen'
 import ExperienceScreen from './screens/ExperienceScreen'
 import HomeScreen from './screens/HomeScreen'
 import ProjectScreen from './screens/ProjectScreen'
+import GameScreen from './screens/GameScreen'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Route path='/skills' component={ExperienceScreen}></Route>
       <Route path='/contact' component={ContactScreen}></Route>
       <Route path='/projects' component={ProjectScreen}></Route>
+      <Route path='/game' component={GameScreen}></Route>
     </Router>
   );
 }

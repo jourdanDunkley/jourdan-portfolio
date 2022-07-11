@@ -11,7 +11,7 @@ const Navbar = ({ active }) => {
           }
         >
           <LinkContainer to='/'>
-            <img src='./images/icons/home.svg' alt='home'></img>
+            <img src={process.env.PUBLIC_URL + '/images/icons/home.svg'} alt='home'></img>
           </LinkContainer>
           <LinkContainer to='/'>
             <h2>Home</h2>
@@ -22,8 +22,8 @@ const Navbar = ({ active }) => {
             active === 'About' ? 'nav-element active-header' : 'nav-element'
           }
         >
-          <LinkContainer to='/about'>
-            <img src='./images/icons/about.svg' alt='about'></img>
+          <LinkContainer to='/about'> 
+            <img src={process.env.PUBLIC_URL + '/images/icons/about.svg' } alt='about'></img>
           </LinkContainer>
           <LinkContainer to='/about'>
             <h2>About</h2>
@@ -37,7 +37,7 @@ const Navbar = ({ active }) => {
           }
         >
           <LinkContainer to='/skills'>
-            <img src='./images/icons/skills.svg' alt='skills'></img>
+            <img src={process.env.PUBLIC_URL + '/images/icons/skills.svg'} alt='skills'></img>
           </LinkContainer>
           <LinkContainer to='/skills'>
             <h2>Skills</h2>
@@ -49,7 +49,7 @@ const Navbar = ({ active }) => {
           }
         >
           <LinkContainer to='/projects'>
-            <img src='./images/icons/projects.svg' alt='projects'></img>
+            <img src={process.env.PUBLIC_URL + '/images/icons/projects.svg'} alt='projects'></img>
           </LinkContainer>
 
           <LinkContainer to='/projects'>
@@ -63,11 +63,25 @@ const Navbar = ({ active }) => {
           }
         >
           <LinkContainer to='/contact'>
-            <img src='./images/icons/contact.svg' alt='contact'></img>
+            <img src={process.env.PUBLIC_URL + '/images/icons/contact.svg'} alt='contact'></img>
           </LinkContainer>
 
           <LinkContainer to='/contact'>
             <h2>Contact</h2>
+          </LinkContainer>
+        </div>
+
+        <div
+          className={
+            active === 'Game' ? 'nav-element active-header' : 'nav-element'
+          }
+        >
+          <LinkContainer to='/game'>
+            <img src={process.env.PUBLIC_URL + '/images/icons/contact.svg'} alt='contact'></img>
+          </LinkContainer>
+
+          <LinkContainer to='/game'>
+            <h2>Game</h2>
           </LinkContainer>
         </div>
       </div>
