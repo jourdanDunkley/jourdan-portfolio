@@ -7,6 +7,7 @@ import spaceLaserSound from '../game/sound/sfx-laser1.ogg';
 import gameOverSound from '../game/sound/sfx-lose.ogg';
 import spaceEnemyImg from '../game/img/enemy-blue-1.png';
 import spaceEnemyLaserImg from '../game/img/laser-red-5.png';
+import { ethers } from 'ethers';
 
 const GameScreen = () => {
   const KEY_CODE_LEFT = 37;
@@ -30,6 +31,7 @@ const GameScreen = () => {
   const [initialized, setInitialized] = useState(false);
   const [enemiesOnScreen, setEnemiesOnScreen] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [walletAddress, setWalletAddress] = useState("");
   
   const GAME_WIDTH = 400;
   const GAME_HEIGHT = 400;
@@ -48,6 +50,33 @@ const GameScreen = () => {
     gameOver: false,
     gameStart: false
   };
+
+  /*--------------------------------------WEB3-----------------------------------------*/
+
+  async function requestAccount() {
+    if(window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({
+          method: 'eth_requestAccounts'
+        })
+        setWalletAddress(accounts[0]);
+      } catch(e) {
+        console.log(e);
+      }
+    } else {
+      alert('metamask not detected');
+    }
+  }
+
+  async function connectWallet() {
+    if(typeof window.ethereum !== 'undefined') {
+      await requestAccount();
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+    }
+    startGame();
+  }
+
 
   /*--------------------------------------PLAYER-----------------------------------------*/
   
@@ -130,6 +159,9 @@ const GameScreen = () => {
   function destroyEnemy($container, enemy) {
     $container.removeChild(enemy.$element);
     enemy.isDead = true;
+    console.log(`playerHasWon: ${playerHasWon()}`);
+    console.log(`initialized: ${initialized}`);
+    console.log(`GAME_STATE.gameOver: ${GAME_STATE.gameOver}`);
   }
 
   /*--------------------------------------LASER-----------------------------------------*/
@@ -342,6 +374,7 @@ const GameScreen = () => {
         <div className="wrap">
           <div className="game-wrapper">
             <div className="game" ref={game}></div>
+            <p className="player-address">Player: {walletAddress}</p>
             <div className="congratulations">
               <h1>Congratulations!</h1>
               <h2>You won the game</h2>
@@ -353,11 +386,12 @@ const GameScreen = () => {
               <button className="btn" onClick={ startGame }>RESTART</button>
             </div>
             <div className="game-start" style={{ display: gameStart || initialized ? 'none' : 'block' }}>
-              <h1>PRESS START TO BEGIN</h1>
-              <button className="btn" onClick={ startGame }>START</button>
+              <h1>CONNECT WALLET TO BEGIN</h1>
+              <button className="btn" onClick={ connectWallet }>CONNECT</button>
             </div>
           </div>
         </div>
+        
       </div>
     </div>
   )

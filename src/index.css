@@ -932,6 +932,18 @@ footer {
   animation: pop-in 1s;
 }
 
+
+.player-address {
+  /* display: block; */
+  position: absolute;
+  color: white;
+  /* z-index: 5; */
+  /* left: 350px; */
+  /* top: 50px; */
+  align-self: flex-end;
+  justify-self: flex-start;
+}
+
 .btn {
   border: 2px solid #36bbf5;
   border-radius: 3px;
