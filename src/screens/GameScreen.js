@@ -8,6 +8,11 @@ import gameOverSound from '../game/sound/sfx-lose.ogg';
 import spaceEnemyImg from '../game/img/enemy-blue-1.png';
 import spaceEnemyLaserImg from '../game/img/laser-red-5.png';
 import { ethers } from 'ethers';
+import Fade from 'react-reveal/Fade'
+import InvaderABI from '../artifacts/invaders.json';
+import Moralis from 'moralis';
+import { createLogger } from 'redux-logger';
+
 
 const GameScreen = () => {
   const KEY_CODE_LEFT = 37;
@@ -26,12 +31,17 @@ const GameScreen = () => {
   const ENEMY_VERTICAL_SPACING = 80;
   const ENEMY_COOLDOWN = 10.0;
 
+  const metadataPrefix = 'https://gateway.pinata.cloud/ipfs/QmY6Dt2tu9THDQiHo4BkquwgvUZRgPYJBg9urvSNyBmaVo/';
+  const metadataExt = '.png';
+
   const game = useRef(null);
   const [gameStart, setGameStart] = useState(false);
   const [initialized, setInitialized] = useState(false);
-  const [enemiesOnScreen, setEnemiesOnScreen] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
+  const [invader, setInvader] = useState("");
+
+  const invadersContract = "0xfe12241Be4832A5f14B88398EF3FffBCCF6e9dE9";
   
   const GAME_WIDTH = 400;
   const GAME_HEIGHT = 400;
@@ -48,35 +58,94 @@ const GameScreen = () => {
     enemies: [],
     enemyLasers: [],
     gameOver: false,
-    gameStart: false
+    gameStart: false,
+    playerAlive: true,
+    initialized: false,
   };
 
   /*--------------------------------------WEB3-----------------------------------------*/
 
   async function requestAccount() {
     if(window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({
-          method: 'eth_requestAccounts'
-        })
-        setWalletAddress(accounts[0]);
-      } catch(e) {
-        console.log(e);
+      if(invader === '') {
+        try {
+          const accounts = await window.ethereum.request({
+            method: 'eth_requestAccounts'
+          })
+          console.log('request account');
+          console.log(ethers.constants.HashZero);
+          setWalletAddress(accounts[0]);
+          await fetchUserNFTS(accounts[0]);
+        } catch(e) {
+          console.log(e);
+          alert('No invader in your wallet. Please mint one to play');
+        }
       }
     } else {
       alert('metamask not detected');
     }
   }
 
-  async function connectWallet() {
-    if(typeof window.ethereum !== 'undefined') {
-      await requestAccount();
-
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-    }
-    startGame();
+  const fetchUserNFTS = async (userAddress) => {
+    const options = {
+      chain: "rinkeby",
+      address: userAddress,
+      token_address: invadersContract,
+    };
+    const userNFTs = await Moralis.Web3API.account.getNFTsForContract(options);
+    console.log('fetch user nfts');
+    setInvader(metadataPrefix + userNFTs.result[0].token_id + metadataExt);
   }
 
+  useEffect(() => {
+    if(invader) startGame();
+    console.log('start game');
+  }, [invader]);
+
+  async function connectWallet() {
+    if(typeof window.ethereum !== 'undefined') {  
+      await requestAccount();
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+    }
+  }
+
+  async function publicMint() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const invaders = new ethers.Contract(invadersContract, InvaderABI.abi, provider.getSigner());
+
+    if(walletAddress) {
+      const hasClaimed = await invaders.publicClaimed(walletAddress);
+      console.log(hasClaimed);
+      if( !hasClaimed ) {
+        const mint = await invaders.publicMint();
+        console.log(mint);
+        invaders.on('Transfer', async (from, to, id) => {
+          if(from == ethers.constants.AddressZero && to.toLowerCase() == walletAddress.toLowerCase()){
+            console.log('SUCCESSFUL MINT');
+            console.log(from);
+            console.log(ethers.constants.AddressZero);
+            console.log(to);
+            console.log(walletAddress.toLowerCase());
+            console.log(id);
+            await requestAccount();
+          } else {
+            console.log('UNSUCCESSFUL MINT');
+            console.log(from);
+            console.log(ethers.constants.AddressZero);
+            console.log(to);
+            console.log(walletAddress.toLowerCase());
+            console.log(id);
+          }
+        });
+
+      } else if(invader === '') {
+        alert("You can only mint one invader per wallet!");
+      }
+    } else {
+      alert("Please connect your wallet before trying to mint.");
+    }
+    
+  }
 
   /*--------------------------------------PLAYER-----------------------------------------*/
   
@@ -84,7 +153,7 @@ const GameScreen = () => {
     GAME_STATE.playerX = GAME_WIDTH / 2;
     GAME_STATE.playerY = GAME_HEIGHT - 50;
     const $player = document.createElement("img");
-    $player.src = spaceCraftImg;
+    $player.src = invader;
     $player.className = 'player';
     $container.appendChild($player);
     setPosition($player, GAME_STATE.playerX, GAME_STATE.playerY);
@@ -115,6 +184,7 @@ const GameScreen = () => {
   function destroyPlayer($container, player) {
     $container.removeChild(player);
     GAME_STATE.gameOver = true;
+    GAME_STATE.playerAlive = false;
     setGameOver(true);
     const audio = new Audio(gameOverSound);
     audio.play();
@@ -159,9 +229,13 @@ const GameScreen = () => {
   function destroyEnemy($container, enemy) {
     $container.removeChild(enemy.$element);
     enemy.isDead = true;
-    console.log(`playerHasWon: ${playerHasWon()}`);
-    console.log(`initialized: ${initialized}`);
-    console.log(`GAME_STATE.gameOver: ${GAME_STATE.gameOver}`);
+    // console.log(`playerHasWon: ${playerHasWon()}`);
+    // console.log(`enemy count: ${GAME_STATE.enemies.length}`);
+    // console.log(`initialized: ${initialized}`);
+    // console.log(`GAME_STATE.gameOver: ${GAME_STATE.gameOver}`);
+    // console.log(`GAME_STATE.player alive: ${GAME_STATE.playerAlive}`);
+    // console.log(`GAME_STATE.initialized: ${GAME_STATE.initialized}`);
+
   }
 
   /*--------------------------------------LASER-----------------------------------------*/
@@ -316,7 +390,8 @@ const GameScreen = () => {
     setGameStart(true);
     setGameOver(false);
     setInitialized(true);
-    setEnemiesOnScreen(true);
+    GAME_STATE.initialized = true;
+    // setEnemiesOnScreen(true);
   }
 
   function update() {
@@ -330,6 +405,8 @@ const GameScreen = () => {
       console.log(`playerHasWon: ${playerHasWon()}`);
       console.log(`initialized: ${initialized}`);
       console.log(`GAME_STATE.gameOver: ${GAME_STATE.gameOver}`);
+      console.log(`GAME_STATE.playerAlive: ${GAME_STATE.playerAlive}`);
+      console.log(`GAME_STATE.initialized: ${GAME_STATE.initialized}`);
 
       document.querySelector(".game").innerHTML = "";
       setGameStart(false);
@@ -340,6 +417,9 @@ const GameScreen = () => {
       console.log(`playerHasWon: ${playerHasWon()}`);
       console.log(`initialized: ${initialized}`);
       console.log(`GAME_STATE.gameOver: ${GAME_STATE.gameOver}`);
+      console.log(`GAME_STATE.playeralive: ${GAME_STATE.playerAlive}`);
+      console.log(`GAME_STATE.initialized: ${GAME_STATE.initialized}`);
+
 
       document.querySelector(".game-over").style.display = "block";
       document.querySelector(".game").innerHTML = "";
@@ -372,9 +452,27 @@ const GameScreen = () => {
       <Navbar active='Game'></Navbar>
       <div className='screen-body'>
         <div className="wrap">
+          <Fade left>
+            <div className='game-instructions'>
+              <h2 style={{ color: '#6C63FF' }}>Blockchain</h2> &nbsp;
+              <h2 style={{ color: 'white' }}>Invaders!</h2>
+              <h3 style={{ color: 'white' }}>How To Play:</h3>
+              <p>
+                1. Switch your metamask wallet to Rinkeby Testnet. <br/>
+                2. Get some Rinkeby Test Ether from <a href='https://faucets.chain.link/rinkeby'>here</a>  <br/>
+                3. Connect Your Wallet. <br/>
+                4. Mint Your Invader. <br/>
+                5. Eliminate All Enemies. Dont get hit! <br/>
+                6. Claim Your Reward. <br/>
+              </p>
+              <button style={{ width: '50%' }} onClick={ connectWallet }>CONNECT</button>
+              <button style={{ width: '50%' }} onClick={ publicMint }>MINT</button>
+            </div>
+          </Fade>
           <div className="game-wrapper">
             <div className="game" ref={game}></div>
             <p className="player-address">Player: {walletAddress}</p>
+            
             <div className="congratulations">
               <h1>Congratulations!</h1>
               <h2>You won the game</h2>
@@ -387,9 +485,30 @@ const GameScreen = () => {
             </div>
             <div className="game-start" style={{ display: gameStart || initialized ? 'none' : 'block' }}>
               <h1>CONNECT WALLET TO BEGIN</h1>
-              <button className="btn" onClick={ connectWallet }>CONNECT</button>
             </div>
           </div>
+          <Fade right>
+            <div className='game-instructions'>
+              <h2 style={{ color: '#6C63FF' }}>About</h2> &nbsp;
+              <p>
+                Blockchain Invaders is a game that demonstrates the power of Web3 in gaming.
+                Through the use of NFT technology, gamers are given complete ownership 
+                over their in-game assets in the form of NFTs. This means you can buy, sell or gift
+                your in-game assets in a fully decentralized manner. <br/> <br/>
+
+                When you mint your invader, you are given a digital asset that 
+                can be used within Blockchain Invaders. No one else owns your particular invader,
+                and no one else can use your particular invader - unless you transfer it to them.
+              </p>
+            </div>
+          </Fade>
+          {/* <Fade right>
+            <div className='mint-container'>
+              <h2>MINT</h2>
+              <p>1/12</p>
+              <button style={{ width: '50%' }}>MINT</button>
+            </div>
+          </Fade> */}
         </div>
         
       </div>

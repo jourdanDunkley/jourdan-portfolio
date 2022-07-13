@@ -15,7 +15,7 @@ function App() {
       <Route path='/' exact component={HomeScreen}></Route>
       <Route path='/about' component={AboutScreen} exact></Route>
       <Route path='/skills' component={ExperienceScreen}></Route>
-      <Route path='/contact' component={ContactScreen}></Route>
+      <Route path='/contact' component={ContactScreen}></Route> 
       <Route path='/projects' component={ProjectScreen}></Route>
       <Route path='/game' component={GameScreen}></Route>
     </Router>

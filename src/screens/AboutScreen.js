@@ -22,22 +22,9 @@ const AboutScreen = () => {
                 it has for the future, and I&apos;ve applied my knowledge and skills of both project management and 
                 development to my own successful NFT project.
               </p>
-              {/* <a href='https://drive.google.com/file/d/1JXC4G-ON0GDLuf5ntf8m_x3-iiqHbOUi/view?usp=sharing'>
-                <button>View CV</button>
-              </a> */}
             </div>
           </div>
         </Fade>
-
-        {/* <Bounce delay={200}>
-          <div className='overflow'>
-            <img
-              className='spinning-planet'
-              src='./images/spinning-planet.svg'
-              alt='spinning-planet'
-            ></img>
-          </div>
-        </Bounce> */}
       </div>
     </div>
   )

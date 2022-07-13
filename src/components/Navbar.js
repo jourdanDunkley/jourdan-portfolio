@@ -77,7 +77,7 @@ const Navbar = ({ active }) => {
           }
         >
           <LinkContainer to='/game'>
-            <img src={process.env.PUBLIC_URL + '/images/icons/contact.svg'} alt='contact'></img>
+            <img src={process.env.PUBLIC_URL + '/images/icons/controller.svg'} alt='contact'></img>
           </LinkContainer>
 
           <LinkContainer to='/game'>
