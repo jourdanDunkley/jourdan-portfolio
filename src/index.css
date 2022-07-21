@@ -272,13 +272,15 @@ button {
   font-size: 1.2rem;
   border: 2px solid #6C63FF;
   padding: 1rem;
-  /* margin-top: 1rem; */
+  cursor: pointer;
   outline: none;
+  transition: 0.2s;
 }
 
 button:hover {
   color: white;
   border: 2px solid white;
+  cursor: pointer;
 }
 
 .blue-ball {
@@ -834,6 +836,146 @@ textarea:focus {
   height: 100%;
 }
 
+.market-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+}
+
+.nft-list {
+  display: flex;
+  flex-wrap: wrap;
+  -webkit-box-pack: start;
+  justify-content: flex-start;
+  margin: 0 auto;
+  max-width: 1000px;
+  width: 100%;
+  gap: 10px;
+}
+
+.nft-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 300px;
+  height: 250px;
+  background-color: #1B1B1B;
+  border-radius: 20px;
+  padding-top: 50px;
+  margin: 10px;
+  box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
+  transition: box-shadow 0.6s;
+}
+
+.nft-card:hover {
+  box-shadow: 0px 0px 15px rgba(255, 255, 255, 1);
+}
+
+.nft-card button {
+  background: #6C63FF;
+  width: 300px;
+  font: inherit;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.2rem;
+  overflow: hidden;
+  cursor: pointer;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.invader-select {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  background-color: #1B1B1B;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 20px;
+  margin: 10px;
+  cursor: pointer;
+  box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
+  transition: box-shadow 0.6s;
+}
+
+.invader-select:hover {
+  box-shadow: 0px 0px 15px rgba(255, 255, 255, 1);
+}
+
+.invader-select button {
+  background: #6C63FF;
+  /* width: 300px; */
+  font: inherit;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.2rem;
+  overflow: hidden;
+  cursor: pointer;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.invader-group {
+  display: flex;
+  justify-content: center;
+}
+
+.nft-description {
+  color: white;
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+
+.my-inventory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+}
+
+.boosts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+}
+
+.ant-modal-content {
+  overflow: auto;
+  border-radius: 1rem;
+}
+
+.tab-container {
+  display: flex;
+  justify-content: center;
+}
+
+.tabs {
+  width: 120px;
+  margin: 10px;
+  text-align: center;
+  cursor: pointer;
+  box-sizing: content-box;
+  position: relative;
+  outline: none;
+  border-radius: 30px;
+}
+
+.active-tabs  {
+  background: #6C63FF;
+  color: white;
+}
+
 header {
   text-align: center;
   background: black;
@@ -865,6 +1007,7 @@ footer {
   background: url(./game/img/background-blue.png);
   animation: scroll-background 5s linear infinite;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
   position: relative;
 }
 
@@ -951,9 +1094,11 @@ footer {
 
 .congratulations {
   display: none;
+  flex-direction: column;
+  align-items: center;
   position: absolute;
-  background: #c7a526;
-  color: white;
+  background: #1B1B1B;
+  color: #6C63FF;
   padding: 20px 50px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
@@ -962,10 +1107,11 @@ footer {
 }
 
 .game-start {
-  display: block;
+  display: flex;
+  flex-direction: column;
   position: absolute;
-  background: #c7a526;
-  color: white;
+  background: #1B1B1B;
+  color: #6C63FF;
   padding: 20px 50px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
@@ -976,8 +1122,8 @@ footer {
 .game-over {
   display: none;
   position: absolute;
-  background: #6b1818;
-  color: white;
+  background: #1B1B1B;
+  color: #6C63FF;
   padding: 20px 50px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
@@ -987,7 +1133,45 @@ footer {
 
 
 .player-address {
+  display: block;
+  position: absolute;
   color: white;
+  left: 5%;
+}
+
+.player-score {
+  display: block;
+  position: absolute;
+  color: white;
+  left: 75%;
+}
+
+.claiming {
+  color: white;
+  align-self: flex-start;
+  display: none;
+}
+
+.dialog-button {
+  background: none;
+  width: 150px;
+  border: none;
+  margin: 5px;
+  font: inherit;
+  color: #6C63FF;
+  font-weight: 600;
+  font-size: 1.2rem;
+  border: 2px solid #6C63FF;
+  border-radius: 30px;
+  padding: 1rem;
+  cursor: pointer;
+  outline: none;
+  transition: 0.2s;
+}
+
+.win-text {
+  color: white;
+  font-size: 18px;
 }
 
 .btn {
