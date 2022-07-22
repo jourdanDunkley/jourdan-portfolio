@@ -12,6 +12,7 @@ import Fade from 'react-reveal/Fade'
 import InvaderABI from '../artifacts/invaders.json';
 import MarketABI from '../artifacts/spacemarket.json';
 import SpaceABI from '../artifacts/space.json';
+import BoostABI from '../artifacts/boosts.json';
 import Moralis from 'moralis';
 import { createLogger } from 'redux-logger';
 import { useMoralisCloudFunction, useMoralisWeb3Api, useMoralisQuery } from 'react-moralis';
@@ -19,6 +20,7 @@ import { Card, Image, Tooltip, Input, Skeleton } from "antd";
 import { Modal } from "../components/Modal/Modal";
 import { DelistModal } from "../components/Modal/DelistModal";
 import { ApproveModal } from "../components/Modal/ApproveModal";
+import { BoostModal } from "../components/Modal/BoostModal";
 import { SpinnerDotted } from 'spinners-react';
 
 const { Meta } = Card;
@@ -43,6 +45,10 @@ const GameScreen = () => {
   const metadataPrefix = 'https://gateway.pinata.cloud/ipfs/QmY6Dt2tu9THDQiHo4BkquwgvUZRgPYJBg9urvSNyBmaVo/';
   const metadataExt = '.png';
 
+  const boostmetadataPrefix = 'https://gateway.pinata.cloud/ipfs/QmVxCdTjBkznLKpm33byLBrm8HQ1kyVYXr8usctv7Tq2WS/';
+  const boostMetadataExt = '.png';
+
+
   const game = useRef(null);
   const [gameStart, setGameStart] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -53,6 +59,7 @@ const GameScreen = () => {
   const [score, setScore] = useState(0);
   const [claimed, setClaimed] = useState(false);
   const [allInvaders, setAllInvaders] = useState();
+  const [allBoosts, setAllBoosts] = useState();
   const [approved, setApproved] = useState(false);
   const [inventory, setInventory] = useState();
   const [visible, setVisibility] = useState(false);
@@ -73,6 +80,13 @@ const GameScreen = () => {
   const [listedItems, setListedItems] = useState([]);
   const [showDelistModal, setShowDelistModal] = useState(false);
   const [nftToDelist, setNftToDelist] = useState(null);
+  const [spaceBalance, setSpaceBalance] = useState(0);
+  const [laserBoost, setLaserBoost] = useState(0);
+  const [cooldownBoost, setCooldownBoost] = useState(0);
+  const [moveBoost, setMoveBoost] = useState(0);
+  const [showBoostModal, setShowBoostModal] = useState(false);
+  const [boostToMint, setBoostToMint] = useState(null);
+  const [boostSpendApproved, setBoostSpendApproved] = useState(false);
 
   const [toggleState, setToggleState] = useState(1);
 
@@ -120,6 +134,7 @@ const GameScreen = () => {
     if(!claimed) {
       setClaiming(true);
       document.querySelector(".win-text").innerHTML = "Claiming... Please Wait";
+      console.log('TRYING TO CLAIM');
       fetch({
         onSuccess: (data) => {
           console.log(data);
@@ -136,6 +151,9 @@ const GameScreen = () => {
   const invadersContract = "0xfe12241Be4832A5f14B88398EF3FffBCCF6e9dE9";
   const spaceMarketContract = "0x52784fccc36cef4d3b684a92dd3e86a680b4b74d";
   const spaceContract = "0x33803B97F74397a3aE116693f577C58D9CC36d9A";
+  const boostContract = "0xF4Ce507688C107eF0078dCC6ed7df5342E68d9BA";
+
+  const boostIDs = [0, 1, 2];
   
   const GAME_WIDTH = 400;
   const GAME_HEIGHT = 400;
@@ -172,17 +190,17 @@ const GameScreen = () => {
 
   function updatePlayer(dt, $container) {
     if(GAME_STATE.leftPressed) {
-      GAME_STATE.playerX -= dt*PLAYER_MAX_SPEED;
+      GAME_STATE.playerX -= dt*(PLAYER_MAX_SPEED + moveBoost);
     }
     if(GAME_STATE.rightPressed) {
-      GAME_STATE.playerX += dt*PLAYER_MAX_SPEED;
+      GAME_STATE.playerX += dt*(PLAYER_MAX_SPEED + moveBoost);
     }
 
     GAME_STATE.playerX = clamp(GAME_STATE.playerX, PLAYER_WIDTH, GAME_WIDTH - PLAYER_WIDTH);
 
     if(GAME_STATE.spacePressed && GAME_STATE.playerCooldown <= 0) {
       createLaser($container, GAME_STATE.playerX, GAME_STATE.playerY);
-      GAME_STATE.playerCooldown = LASER_COOLDOWN;
+      GAME_STATE.playerCooldown = LASER_COOLDOWN + cooldownBoost;
     }
     if(GAME_STATE.playerCooldown > 0) {
       GAME_STATE.playerCooldown -= dt;
@@ -264,7 +282,7 @@ const GameScreen = () => {
     const lasers = GAME_STATE.lasers;
     for(let i = 0; i < lasers.length; i++) {
       const laser = lasers[i];
-      laser.y -= dt * LASER_MAX_SPEED;
+      laser.y -= dt * (LASER_MAX_SPEED + laserBoost);
       if(laser.y < 0) {
         destroyLaser($container, laser);
       }
@@ -468,9 +486,11 @@ const GameScreen = () => {
           setShortAddress(accounts[0].substring(0, 6) + '...');
           await fetchListedNFTs();
           await fetchUserNFTS(accounts[0]);
+          await fetchUserBoosts(accounts[0]);
           await isMarketplaceApproved(accounts[0]);
           await isBalanceApproved(accounts[0]);
-          await getUserEthBalance(accounts[0]);
+          await isBoostBalanceApproved(accounts[0]);
+          await getSpaceBalance(accounts[0]);
         } catch(e) {
           console.log(e);
           alert('No invader in your wallet. Please mint one to play');
@@ -502,12 +522,50 @@ const GameScreen = () => {
     setInventory(userNFTs);
   }
 
+  const fetchUserBoosts = async (userAddress) => {
+    const options = {
+      chain: "rinkeby",
+      address: userAddress,
+      token_address: boostContract,
+    };
+    const userNFTs = await Moralis.Web3API.account.getNFTsForContract(options);
+    
+    userNFTs?.result.map((nft) => {
+      if(nft.token_id == 1) {
+        const boost = parseInt(JSON.parse(nft.metadata).attributes[1].value);
+        console.log(boost);
+        setLaserBoost(boost);
+      }
+      if(nft.token_id == 0) {
+        const boost = parseInt(JSON.parse(nft.metadata).attributes[1].value);
+        console.log(boost);
+        setMoveBoost(boost);
+      }
+      if(nft.token_id == 2) {
+        const boost = parseFloat(JSON.parse(nft.metadata).attributes[1].value);
+        console.log(boost);
+        setCooldownBoost(boost);  
+      }
+    });
+  }
+
   const getAllInvaders = async () => {
     const options = {
       chain: "rinkeby",
       address: invadersContract,
     }
     const result = await Web3API.token.getAllTokenIds(options);
+    return result;
+  }
+
+  const getAllBoosts = async () => {
+    const options = {
+      chain: "rinkeby",
+      address: boostContract,
+    }
+    const result = await Web3API.token.getAllTokenIds(options);
+    // console.log(JSON.parse(result.result[0].metadata));
+    // console.log(result.result);
     return result;
   }
 
@@ -538,6 +596,35 @@ const GameScreen = () => {
     
   }
 
+  async function mintBoost(nft) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const boosts = new ethers.Contract(boostContract, BoostABI.abi, provider.getSigner());
+
+    if(walletAddress) {
+      setIsLoading(true);
+      try {
+        const mint = await boosts.mint(nft, 1);
+        console.log(mint);
+      } catch (e) {
+        console.log(e);
+        setIsLoading(false);
+      }
+      boosts.on('TransferSingle', async (operator, from, to, id, amount) => {
+        if(from == ethers.constants.AddressZero && to.toLowerCase() == walletAddress.toLowerCase()){
+          await requestAccount();
+          setIsLoading(false);
+          setShowBoostModal(false);
+          console.log('SUCCESSFUL MINT');
+        } else {
+          console.log('UNSUCCESSFUL MINT');
+        }
+      });
+    } else {
+      alert("Please connect your wallet before trying to mint.");
+    }
+    
+  }
+
   const handleListClick = (nft) => {
     setNftToSell(nft);
     setShowApproveModal(true);
@@ -546,6 +633,11 @@ const GameScreen = () => {
   const handleDeListClick = (nft) => {
     setNftToDelist(nft);
     setShowDelistModal(true);
+  };
+
+  const handleBoostClick = (nft) => {
+    setBoostToMint(nft);
+    setShowBoostModal(true);
   };
 
   const handleBuyClick = (nft) => {
@@ -610,6 +702,14 @@ const GameScreen = () => {
     });
   }
 
+  async function getSpaceBalance(address) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const space = new ethers.Contract(spaceContract, SpaceABI.abi, provider.getSigner());
+    const balance = await space.balanceOf(address);
+    const parsedBalance = ethers.utils.formatEther(balance);
+    setSpaceBalance(parsedBalance);
+  }
+
   async function buy() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const invadersMarketplace = new ethers.Contract(spaceMarketContract, MarketABI.abi, provider.getSigner());
@@ -633,8 +733,9 @@ const GameScreen = () => {
             console.log('NFT bought!');
             setIsLoading(false);
             setShowBuyModal(false);
-            // updateSoldMarketItem();
             await fetchListedNFTs();
+            await fetchUserNFTS(walletAddress);
+            await getSpaceBalance(walletAddress);
           }
         });
       } else {
@@ -673,6 +774,23 @@ const GameScreen = () => {
       }
     })
   }
+
+  async function approveBoostBalanceSpend() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const space = new ethers.Contract(spaceContract, SpaceABI.abi, provider.getSigner());
+    
+    setIsLoading(true);
+    const result = await space.approve(boostContract, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
+    space.on('Approval', async (owner, spender, amount) => {
+      if(owner.toLowerCase() == walletAddress.toLowerCase()) {
+        console.log(`${owner} Approved: ${spender} Amount: ${amount}`);
+        setBoostSpendApproved(true);
+        setIsLoading(false);
+      }
+    })
+  }
+
+
 
   const isNFTListed = (nft) => {
     const result = listedItems?.find(
@@ -791,12 +909,30 @@ const GameScreen = () => {
     }
   }
 
+  async function isBoostBalanceApproved(userAddress) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const space = new ethers.Contract(spaceContract, SpaceABI.abi, provider.getSigner());
+    const result = await space.allowance(userAddress, boostContract);
+    console.log(result.toString());
+    if(result != 0) {
+      setBoostSpendApproved(true);
+    } else {
+      setBoostSpendApproved(false);
+    }
+  }
+
   /*--------------------------------------USEEFFECT----------------------------------------*/
 
   useEffect(() => {
     if(invader) startGame();
     console.log('start game');
   }, [invader]);
+
+
+  useEffect(() => {
+    // if(invader) startGame();
+    console.log(laserBoost);
+  }, [laserBoost]);
 
 
   useEffect(() => {
@@ -812,7 +948,9 @@ const GameScreen = () => {
 
     const fetchInvaders = async () => {
       const invaders = await getAllInvaders();
+      const boosts = await getAllBoosts();
       setAllInvaders(invaders);
+      setAllBoosts(boosts);
     }
 
     fetchInvaders();
@@ -862,7 +1000,7 @@ const GameScreen = () => {
                 size={35}
                 />
               <button className="dialog-button" onClick={ startGame } disabled={claiming}>RESTART</button>
-              <button className="dialog-button" onClick={ claimSpace } disabled={claiming}>CLAIM</button>
+              <button className="dialog-button" onClick={() => claimSpace() } disabled={claiming}>CLAIM</button>
             </div>
             <div className="game-over">
               <h1>GAME OVER</h1>
@@ -940,6 +1078,7 @@ const GameScreen = () => {
 
         <div className='market-wrapper' style={{ display: toggleState === 1 ? 'flex' : 'none' }}>
           <h1 style={{ color: '#6C63FF' }}>Space Marketplace</h1>
+          <p style={{ color: '#6C63FF' }}>$SPACE Balance: {spaceBalance}</p>
           <div className='nft-list'>
             <Skeleton loading = {!allInvaders?.result}>
               {allInvaders?.result && allInvaders.result.map((nft, index) => (
@@ -1009,6 +1148,31 @@ const GameScreen = () => {
 
         <div className='boosts' style={{ display: toggleState === 3 ? 'flex' : 'none' }}>
           <h1 style={{ color: '#6C63FF' }}>Boosts</h1>
+          <div className='nft-list'>
+            <Skeleton loading = {!allBoosts?.result}>
+              {allBoosts?.result && allBoosts.result.map((nft, index) => (
+                <Card
+                  hoverable           
+                  className='nft-card'  
+                  cover={
+                    <Image
+                      preview={false}
+                      src={boostmetadataPrefix + nft.token_id + boostMetadataExt || "error"}
+                      fallback="data:image/png;base64,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"
+                      alt=""
+                      style={{ width: '60px', height: '80px' }}
+                    />
+                  } 
+                  key={index}
+                >
+                  <Meta className='nft-description' description={`PRICE: 100 SPACE`} />
+                  <Meta style={{ color: '#6C63FF' }} className='nft-description' description={JSON.parse(nft.metadata).attributes[0].value} />
+                  <Meta style={{ color: '#6C63FF' }} className='nft-description' description={`${JSON.parse(nft.metadata).attributes[1].trait_type} : ${JSON.parse(nft.metadata).attributes[1].value}`} />
+                  <button onClick={() => handleBoostClick(nft)}>MINT</button>
+                </Card>
+              ))}
+            </Skeleton>
+          </div>
         </div>
       </div>
       <Modal 
@@ -1044,6 +1208,19 @@ const GameScreen = () => {
         nftImg={metadataPrefix + nftToDelist?.token_id + metadataExt}
         isLoading={isLoading}
         delistInvader={delistInvader}
+      /> 
+      <BoostModal 
+        showModal={showBoostModal} 
+        setShowModal={setShowBoostModal} 
+        mintBoost={mintBoost}
+        boost={boostToMint?.token_id}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        nftImg={boostmetadataPrefix + boostToMint?.token_id + boostMetadataExt}
+        balanceError={balanceError}
+        setBalanceError={setBalanceError}
+        boostSpendApproved={boostSpendApproved}
+        approveBoostBalanceSpend={approveBoostBalanceSpend}
       /> 
     </div>
   )
