@@ -1,27 +1,29 @@
 import Navbar from '../components/Navbar';
 import React from 'react';
+import Moralis from 'moralis';
+import { useMoralisCloudFunction, useMoralisWeb3Api, useMoralisQuery } from 'react-moralis';
 import { useRef, useEffect, useState } from 'react';
-import spaceCraftImg from '../game/img/player-blue-1.png';
+import { ethers } from 'ethers';
+import Fade from 'react-reveal/Fade'
+import { Card, Image, Skeleton } from "antd";
+import { SpinnerDotted } from 'spinners-react';
+// import InvaderABI from '../artifacts/invaders.json';
+// import MarketABI from '../artifacts/spacemarket.json';
+// import SpaceABI from '../artifacts/space.json';
+// import BoostABI from '../artifacts/boosts.json';
+import InvaderABI from '../artifacts-polygon/invaders.json';
+import MarketABI from '../artifacts-polygon/spacemarket.json';
+import SpaceABI from '../artifacts-polygon/space.json';
+import BoostABI from '../artifacts-polygon/boosts.json';
 import spaceLaserImg from '../game/img/laser-blue-1.png';
 import spaceLaserSound from '../game/sound/sfx-laser1.ogg';
 import gameOverSound from '../game/sound/sfx-lose.ogg';
 import spaceEnemyImg from '../game/img/enemy-blue-1.png';
 import spaceEnemyLaserImg from '../game/img/laser-red-5.png';
-import { ethers } from 'ethers';
-import Fade from 'react-reveal/Fade'
-import InvaderABI from '../artifacts/invaders.json';
-import MarketABI from '../artifacts/spacemarket.json';
-import SpaceABI from '../artifacts/space.json';
-import BoostABI from '../artifacts/boosts.json';
-import Moralis from 'moralis';
-import { createLogger } from 'redux-logger';
-import { useMoralisCloudFunction, useMoralisWeb3Api, useMoralisQuery } from 'react-moralis';
-import { Card, Image, Tooltip, Input, Skeleton } from "antd";
-import { Modal } from "../components/Modal/Modal";
+import { BuyModal } from "../components/Modal/BuyModal";
 import { DelistModal } from "../components/Modal/DelistModal";
-import { ApproveModal } from "../components/Modal/ApproveModal";
+import { ListModal } from "../components/Modal/ListModal";
 import { BoostModal } from "../components/Modal/BoostModal";
-import { SpinnerDotted } from 'spinners-react';
 
 const { Meta } = Card;
 
@@ -42,13 +44,6 @@ const GameScreen = () => {
   const ENEMY_VERTICAL_SPACING = 80;
   const ENEMY_COOLDOWN = 10.0;
 
-  const metadataPrefix = 'https://gateway.pinata.cloud/ipfs/QmY6Dt2tu9THDQiHo4BkquwgvUZRgPYJBg9urvSNyBmaVo/';
-  const metadataExt = '.png';
-
-  const boostmetadataPrefix = 'https://gateway.pinata.cloud/ipfs/QmVxCdTjBkznLKpm33byLBrm8HQ1kyVYXr8usctv7Tq2WS/';
-  const boostMetadataExt = '.png';
-
-
   const game = useRef(null);
   const [gameStart, setGameStart] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -57,36 +52,53 @@ const GameScreen = () => {
   const [shortAddress, setShortAddress] = useState("");
   const [invader, setInvader] = useState("");
   const [score, setScore] = useState(0);
-  const [claimed, setClaimed] = useState(false);
+  
   const [allInvaders, setAllInvaders] = useState();
   const [allBoosts, setAllBoosts] = useState();
-  const [approved, setApproved] = useState(false);
+  const [listedItems, setListedItems] = useState([]);
+
+  const [claimed, setClaimed] = useState(false);
   const [inventory, setInventory] = useState();
-  const [visible, setVisibility] = useState(false);
+  const [spaceBalance, setSpaceBalance] = useState(0);
+
+  const [approved, setApproved] = useState(false);
+  const [spendApproved, setSpendApproved] = useState(false);
+  const [boostSpendApproved, setBoostSpendApproved] = useState(false);
+
   const [nftToSell, setNftToSell] = useState(null);
   const [nftToBuy, setNftToBuy] = useState(null);
-  const [isPending, setIsPending] = useState(false);
-  const [showListingModal, setShowListingModal] = useState(false);
+  const [nftToDelist, setNftToDelist] = useState(null);
+  const [boostToMint, setBoostToMint] = useState(null);
+
   const [showBuyModal, setShowBuyModal] = useState(false);
-  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showListModal, setShowListModal] = useState(false);
+  const [showDelistModal, setShowDelistModal] = useState(false);
+  const [showBoostModal, setShowBoostModal] = useState(false);
+
   const [askingPrice, setAskingPrice] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [numberError, setNumberError] = useState(false);
   const [balanceError, setBalanceError] = useState(false);
-  const [basicActive, setBasicActive] = useState('tab1');
-  const [ethBalance, setEthBalance] = useState(0);
   const [claiming, setClaiming] = useState(false);
-  const [spendApproved, setSpendApproved] = useState(false);
-  const [listedItems, setListedItems] = useState([]);
-  const [showDelistModal, setShowDelistModal] = useState(false);
-  const [nftToDelist, setNftToDelist] = useState(null);
-  const [spaceBalance, setSpaceBalance] = useState(0);
+
   const [laserBoost, setLaserBoost] = useState(0);
   const [cooldownBoost, setCooldownBoost] = useState(0);
   const [moveBoost, setMoveBoost] = useState(0);
-  const [showBoostModal, setShowBoostModal] = useState(false);
-  const [boostToMint, setBoostToMint] = useState(null);
-  const [boostSpendApproved, setBoostSpendApproved] = useState(false);
+
+  const metadataPrefix = 'https://gateway.pinata.cloud/ipfs/QmY6Dt2tu9THDQiHo4BkquwgvUZRgPYJBg9urvSNyBmaVo/';
+  const metadataExt = '.png';
+  const boostmetadataPrefix = 'https://gateway.pinata.cloud/ipfs/QmVxCdTjBkznLKpm33byLBrm8HQ1kyVYXr8usctv7Tq2WS/';
+  const boostMetadataExt = '.png';
+
+  // const invadersContract = "0xfe12241Be4832A5f14B88398EF3FffBCCF6e9dE9";
+  // const spaceMarketContract = "0x52784fccc36cef4d3b684a92dd3e86a680b4b74d";
+  // const spaceContract = "0x33803B97F74397a3aE116693f577C58D9CC36d9A";
+  // const boostContract = "0xF4Ce507688C107eF0078dCC6ed7df5342E68d9BA";
+
+  const invadersContract = "0x36b09B9AC0b7494ecC3c66da5F9781B0D7B24f71";
+  const spaceMarketContract = "0x6136BeC00Ba7C6d44BB10ee8683C792a0F8cDd6a";
+  const spaceContract = "0xA1E217358E118A156446c02385591BB329194f82";
+  const boostContract = "0xe84b3739A17339F25C64B4E68bC15FAc209b0ca2";
 
   const [toggleState, setToggleState] = useState(1);
 
@@ -94,67 +106,6 @@ const GameScreen = () => {
     setToggleState(index);
   };
 
-  const handleBasicClick = (value) => {
-    if (value === basicActive) {
-      return;
-    }
-
-    setBasicActive(value);
-  };
-
-  const queryListings = useMoralisQuery('MarketItemCreated');
-  const fetchListings = JSON.parse(
-    JSON.stringify(queryListings.data, [
-      "objectId",
-      "createdAt",
-      "price",
-      "nftContract",
-      "itemId",
-      "sold",
-      "forSale",
-      "tokenId",
-      "seller",
-      "owner",
-      "confirmed",
-    ])
-  )
-
-
-  const { fetch } = useMoralisCloudFunction(
-    "rewardMint",
-    {
-      account: walletAddress,
-      amount: '15'
-    },
-  );
-
-  const Web3API = useMoralisWeb3Api();
-
-  const claimSpace = () => {
-    if(!claimed) {
-      setClaiming(true);
-      document.querySelector(".win-text").innerHTML = "Claiming... Please Wait";
-      console.log('TRYING TO CLAIM');
-      fetch({
-        onSuccess: (data) => {
-          console.log(data);
-          document.querySelector(".win-text").innerHTML = "+15 $SPACE Tokens! Congrats!";
-          setClaimed(true);
-          setClaiming(false);
-        }
-      })
-    } else {
-      document.querySelector(".win-text").innerHTML = "$SPACE Already Claimed This Round!";
-    }
-  }
-
-  const invadersContract = "0xfe12241Be4832A5f14B88398EF3FffBCCF6e9dE9";
-  const spaceMarketContract = "0x52784fccc36cef4d3b684a92dd3e86a680b4b74d";
-  const spaceContract = "0x33803B97F74397a3aE116693f577C58D9CC36d9A";
-  const boostContract = "0xF4Ce507688C107eF0078dCC6ed7df5342E68d9BA";
-
-  const boostIDs = [0, 1, 2];
-  
   const GAME_WIDTH = 400;
   const GAME_HEIGHT = 400;
   
@@ -259,9 +210,7 @@ const GameScreen = () => {
     $container.removeChild(enemy.$element);
     enemy.isDead = true;
     GAME_STATE.score++;
-    setScore(GAME_STATE.score);
-    
-    console.log(GAME_STATE.score);
+    setScore(GAME_STATE.score); 
   }
 
   /*--------------------------------------LASER-----------------------------------------*/
@@ -468,6 +417,49 @@ const GameScreen = () => {
 
   /*--------------------------------------WEB3-----------------------------------------*/
 
+  const queryListings = useMoralisQuery('MarketItemCreated');
+  const fetchListings = JSON.parse(
+    JSON.stringify(queryListings.data, [
+      "objectId",
+      "createdAt",
+      "price",
+      "nftContract",
+      "itemId",
+      "sold",
+      "forSale",
+      "tokenId",
+      "seller",
+      "owner",
+      "confirmed",
+    ])
+  )
+
+  const { fetch } = useMoralisCloudFunction(
+    "rewardMint",
+    {
+      account: walletAddress,
+      amount: '15'
+    },
+  );
+
+  const Web3API = useMoralisWeb3Api();
+
+  const claimSpace = () => {
+    if(!claimed) {
+      setClaiming(true);
+      document.querySelector(".win-text").innerHTML = "Claiming... Please Wait";
+      fetch({
+        onSuccess: (data) => {
+          document.querySelector(".win-text").innerHTML = "+15 $SPACE Tokens! Congrats!";
+          setClaimed(true);
+          setClaiming(false);
+        }
+      })
+    } else {
+      document.querySelector(".win-text").innerHTML = "$SPACE Already Claimed This Round!";
+    }
+  }
+
   async function connectWallet() {
     if(typeof window.ethereum !== 'undefined') {  
       await requestAccount();
@@ -492,7 +484,6 @@ const GameScreen = () => {
           await isBoostBalanceApproved(accounts[0]);
           await getSpaceBalance(accounts[0]);
         } catch(e) {
-          console.log(e);
           alert('No invader in your wallet. Please mint one to play');
         }
       }
@@ -501,30 +492,27 @@ const GameScreen = () => {
     }
   }
 
-  const getUserEthBalance = async(userAddress) => {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const balance = await provider.getBalance(userAddress);
-      const balanceInEth = ethers.utils.formatEther(balance);
-      setEthBalance(balanceInEth);
-      console.log(balanceInEth);
-      return balanceInEth;
+  async function fetchListedNFTs() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const invadersMarketplace = new ethers.Contract(spaceMarketContract, MarketABI.abi, provider.getSigner());
+
+    const result = await invadersMarketplace.getListedItems();
+    setListedItems(result);
   }
 
   const fetchUserNFTS = async (userAddress) => {
     const options = {
-      chain: "rinkeby",
+      chain: "mumbai",
       address: userAddress,
       token_address: invadersContract,
     };
     const userNFTs = await Moralis.Web3API.account.getNFTsForContract(options);
-    console.log(userNFTs);
-    // setInvader(metadataPrefix + userNFTs?.result[0].token_id + metadataExt);
     setInventory(userNFTs);
   }
 
   const fetchUserBoosts = async (userAddress) => {
     const options = {
-      chain: "rinkeby",
+      chain: "mumbai",
       address: userAddress,
       token_address: boostContract,
     };
@@ -533,25 +521,59 @@ const GameScreen = () => {
     userNFTs?.result.map((nft) => {
       if(nft.token_id == 1) {
         const boost = parseInt(JSON.parse(nft.metadata).attributes[1].value);
-        console.log(boost);
         setLaserBoost(boost);
       }
       if(nft.token_id == 0) {
         const boost = parseInt(JSON.parse(nft.metadata).attributes[1].value);
-        console.log(boost);
         setMoveBoost(boost);
       }
       if(nft.token_id == 2) {
         const boost = parseFloat(JSON.parse(nft.metadata).attributes[1].value);
-        console.log(boost);
         setCooldownBoost(boost);  
       }
     });
   }
 
+  async function isMarketplaceApproved(userAddress) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const invaders = new ethers.Contract(invadersContract, InvaderABI.abi, provider.getSigner());
+    const result = await invaders.isApprovedForAll(userAddress, spaceMarketContract);
+    setApproved(result);
+  }
+
+  async function isBalanceApproved(userAddress) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const space = new ethers.Contract(spaceContract, SpaceABI.abi, provider.getSigner());
+    const result = await space.allowance(userAddress, spaceMarketContract);
+    if(result != 0) {
+      setSpendApproved(true);
+    } else {
+      setSpendApproved(false);
+    }
+  }
+
+  async function isBoostBalanceApproved(userAddress) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const space = new ethers.Contract(spaceContract, SpaceABI.abi, provider.getSigner());
+    const result = await space.allowance(userAddress, boostContract);
+    if(result != 0) {
+      setBoostSpendApproved(true);
+    } else {
+      setBoostSpendApproved(false);
+    }
+  }
+
+  async function getSpaceBalance(address) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const space = new ethers.Contract(spaceContract, SpaceABI.abi, provider.getSigner());
+    const balance = await space.balanceOf(address);
+    const parsedBalance = ethers.utils.formatEther(balance);
+    setSpaceBalance(parsedBalance);
+  }
+
   const getAllInvaders = async () => {
     const options = {
-      chain: "rinkeby",
+      chain: "mumbai",
       address: invadersContract,
     }
     const result = await Web3API.token.getAllTokenIds(options);
@@ -560,12 +582,10 @@ const GameScreen = () => {
 
   const getAllBoosts = async () => {
     const options = {
-      chain: "rinkeby",
+      chain: "mumbai",
       address: boostContract,
     }
     const result = await Web3API.token.getAllTokenIds(options);
-    // console.log(JSON.parse(result.result[0].metadata));
-    // console.log(result.result);
     return result;
   }
 
@@ -575,16 +595,12 @@ const GameScreen = () => {
 
     if(walletAddress) {
       const hasClaimed = await invaders.publicClaimed(walletAddress);
-      console.log(hasClaimed);
       if( !hasClaimed ) {
         const mint = await invaders.publicMint();
-        console.log(mint);
         invaders.on('Transfer', async (from, to, id) => {
           if(from == ethers.constants.AddressZero && to.toLowerCase() == walletAddress.toLowerCase()){
             await requestAccount();
-          } else {
-            console.log('UNSUCCESSFUL MINT');
-          }
+          } 
         });
 
       } else if(invader === '') {
@@ -604,19 +620,14 @@ const GameScreen = () => {
       setIsLoading(true);
       try {
         const mint = await boosts.mint(nft, 1);
-        console.log(mint);
       } catch (e) {
-        console.log(e);
         setIsLoading(false);
       }
       boosts.on('TransferSingle', async (operator, from, to, id, amount) => {
-        if(from == ethers.constants.AddressZero && to.toLowerCase() == walletAddress.toLowerCase()){
+        if(from == ethers.constants.AddressZero && to.toLowerCase() == walletAddress.toLowerCase()) {
           await requestAccount();
           setIsLoading(false);
           setShowBoostModal(false);
-          console.log('SUCCESSFUL MINT');
-        } else {
-          console.log('UNSUCCESSFUL MINT');
         }
       });
     } else {
@@ -625,45 +636,20 @@ const GameScreen = () => {
     
   }
 
-  const handleListClick = (nft) => {
-    setNftToSell(nft);
-    setShowApproveModal(true);
-  };
-
-  const handleDeListClick = (nft) => {
-    setNftToDelist(nft);
-    setShowDelistModal(true);
-  };
-
-  const handleBoostClick = (nft) => {
-    setBoostToMint(nft);
-    setShowBoostModal(true);
-  };
-
-  const handleBuyClick = (nft) => {
-    setNftToBuy(nft);
-    setShowBuyModal(true);
-    setVisibility(true);
-  };
-
   async function list() {
     if(isNaN(askingPrice) || askingPrice <= 0) {
-      console.log('not a number');
       setNumberError(true);
       return;
     }
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const invadersMarketplace = new ethers.Contract(spaceMarketContract, MarketABI.abi, provider.getSigner());
     const listedItems = await invadersMarketplace.listedItems();
-    console.log(parseInt(listedItems.toString()));
-    setShowListingModal(false);
     setIsLoading(true);
     setNumberError(false);
     try {
       const listing = await invadersMarketplace.listNFT(invadersContract, nftToSell.token_id, ethers.utils.parseEther(askingPrice));     
     } catch (err) {
       setIsLoading(false);
-      console.log(err);
     }
     invadersMarketplace.on('MarketItemCreated', async (itemId, nftContract, tokenId, seller, owner, price, sold, forSale) => {
       if(seller.toLowerCase() == walletAddress.toLowerCase() && 
@@ -672,10 +658,8 @@ const GameScreen = () => {
       forSale == true &&
       itemId == parseInt(listedItems.toString()) + 1
       ) {
-        console.log('item listed!');  
-        console.log(tokenId.toString());
         setIsLoading(false);
-        setShowApproveModal(false);
+        setShowListModal(false);
         await fetchListedNFTs();
       }
     });
@@ -690,24 +674,14 @@ const GameScreen = () => {
       const listing = await invadersMarketplace.delistNFT(getContractItemId(nftToDelist));     
     } catch (err) {
       setIsLoading(false);
-      console.log(err);
     }
     invadersMarketplace.on('MarketItemDelisted', async (itemId, owner) => {
       if(getContractItemId(nftToDelist).toString() == itemId.toString()) {
-        console.log('NFT delisted!');
         setIsLoading(false);
         setShowDelistModal(false);
         await fetchListedNFTs();
       }
     });
-  }
-
-  async function getSpaceBalance(address) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const space = new ethers.Contract(spaceContract, SpaceABI.abi, provider.getSigner());
-    const balance = await space.balanceOf(address);
-    const parsedBalance = ethers.utils.formatEther(balance);
-    setSpaceBalance(parsedBalance);
   }
 
   async function buy() {
@@ -717,20 +691,15 @@ const GameScreen = () => {
     if(walletAddress) {
       const balance = await space.balanceOf(walletAddress);
       const parsedBalance = ethers.utils.formatEther(balance);
-      console.log(parseInt(parsedBalance));
-      console.log(parseInt(getContractPrice(nftToBuy)));
       if(parseFloat(parsedBalance) > parseFloat(getContractPrice(nftToBuy))){
         setIsLoading(true);
         try {
           const purchase = await invadersMarketplace.buyNFT(invadersContract, getContractItemId(nftToBuy));
-          console.log(getContractItemId(nftToBuy).toString());
         } catch(err) {
           setIsLoading(false);
-          console.log(err);
         }
         invadersMarketplace.on('MarketItemSold', async (itemId, owner) => {
           if(getContractItemId(nftToBuy).toString() == itemId.toString()) {
-            console.log('NFT bought!');
             setIsLoading(false);
             setShowBuyModal(false);
             await fetchListedNFTs();
@@ -754,7 +723,6 @@ const GameScreen = () => {
     const approval = await invaders.setApprovalForAll(spaceMarketContract, true);
     invaders.on('ApprovalForAll', async (owner, operator, approved) => {
       if(owner.toLowerCase() == walletAddress.toLowerCase()) {
-        console.log(`${owner} Approved: ${operator} ${approved}`);
         setApproved(true);
         setIsLoading(false);
       }
@@ -768,7 +736,6 @@ const GameScreen = () => {
     const result = await space.approve(spaceMarketContract, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
     space.on('Approval', async (owner, spender, amount) => {
       if(owner.toLowerCase() == walletAddress.toLowerCase()) {
-        console.log(`${owner} Approved: ${spender} Amount: ${amount}`);
         setSpendApproved(true);
         setIsLoading(false);
       }
@@ -783,14 +750,11 @@ const GameScreen = () => {
     const result = await space.approve(boostContract, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
     space.on('Approval', async (owner, spender, amount) => {
       if(owner.toLowerCase() == walletAddress.toLowerCase()) {
-        console.log(`${owner} Approved: ${spender} Amount: ${amount}`);
         setBoostSpendApproved(true);
         setIsLoading(false);
       }
     })
   }
-
-
 
   const isNFTListed = (nft) => {
     const result = listedItems?.find(
@@ -812,50 +776,6 @@ const GameScreen = () => {
     }
   }
 
-  const getPrice = (nft) => {
-    if(nft){
-      const result = fetchListings?.find(
-        (e) =>
-          e.nftContract === nft?.token_address &&
-          e.tokenId === nft?.token_id &&
-          e.sold === false &&
-          e.confirmed === true &&
-          e.forSale === true
-        );      
-      if(result){
-        const etherPrice = ethers.utils.formatEther(result?.price);
-        return etherPrice;
-      }
-    } else {
-      return;
-    }
-  }
-
-  const getMarketItem = (nft) => {
-    const result = fetchListings?.find(
-      (e) =>
-        e.nftContract === nft?.token_address &&
-        e.tokenId === nft?.token_id &&
-        e.sold === false &&
-        e.confirmed === true &&
-        e.forSale === true
-    );
-    return result;
-  };
-
-  const getItemId = (nft) => {
-    if(!nft) return;
-    const result = fetchListings?.find(
-      (e) =>
-        e.nftContract === nft?.token_address &&
-        e.tokenId === nft?.token_id &&
-        e.sold === false &&
-        e.confirmed === true
-      );
-      
-    return result.itemId;
-  }
-
   const getContractItemId = (nft) => {
     if(!nft) return;
     const result = listedItems.find(
@@ -868,78 +788,31 @@ const GameScreen = () => {
     }
   }
 
-  async function updateSoldMarketItem() {
-    const id = getMarketItem(nftToBuy).objectId;
-    const marketList = Moralis.Object.extend("MarketItemCreated");
-    const query = new Moralis.Query(marketList);
-    await query.get(id).then((obj) => {
-      obj.set("sold", true);
-      obj.set("owner", walletAddress);
-      obj.set("forSale", false);
-      obj.save();
-    });
-  }
+  const handleListClick = (nft) => {
+    setNftToSell(nft);
+    setShowListModal(true);
+  };
 
-  async function fetchListedNFTs() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const invadersMarketplace = new ethers.Contract(spaceMarketContract, MarketABI.abi, provider.getSigner());
+  const handleDeListClick = (nft) => {
+    setNftToDelist(nft);
+    setShowDelistModal(true);
+  };
 
-    const result = await invadersMarketplace.getListedItems();
-    console.log(result);
-    setListedItems(result);
-  }
+  const handleBoostClick = (nft) => {
+    setBoostToMint(nft);
+    setShowBoostModal(true);
+  };
 
-  async function isMarketplaceApproved(userAddress) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const invaders = new ethers.Contract(invadersContract, InvaderABI.abi, provider.getSigner());
-    const result = await invaders.isApprovedForAll(userAddress, spaceMarketContract);
-    console.log(result);
-    setApproved(result);
-  }
-
-  async function isBalanceApproved(userAddress) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const space = new ethers.Contract(spaceContract, SpaceABI.abi, provider.getSigner());
-    const result = await space.allowance(userAddress, spaceMarketContract);
-    console.log(result.toString());
-    if(result != 0) {
-      setSpendApproved(true);
-    } else {
-      setSpendApproved(false);
-    }
-  }
-
-  async function isBoostBalanceApproved(userAddress) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const space = new ethers.Contract(spaceContract, SpaceABI.abi, provider.getSigner());
-    const result = await space.allowance(userAddress, boostContract);
-    console.log(result.toString());
-    if(result != 0) {
-      setBoostSpendApproved(true);
-    } else {
-      setBoostSpendApproved(false);
-    }
-  }
+  const handleBuyClick = (nft) => {
+    setNftToBuy(nft);
+    setShowBuyModal(true);
+  };
 
   /*--------------------------------------USEEFFECT----------------------------------------*/
 
   useEffect(() => {
     if(invader) startGame();
-    console.log('start game');
   }, [invader]);
-
-
-  useEffect(() => {
-    // if(invader) startGame();
-    console.log(laserBoost);
-  }, [laserBoost]);
-
-
-  useEffect(() => {
-    console.log(listedItems);
-  }, [listedItems]);
-
-
 
   useEffect(() => {
     if(gameStart){
@@ -974,12 +847,13 @@ const GameScreen = () => {
               <h2 style={{ color: 'white' }}>Invaders!</h2>
               <h3 style={{ color: 'white' }}>How To Play:</h3>
               <p>
-                1. Switch your metamask wallet to Rinkeby Testnet. <br/>
-                2. Get some Rinkeby Test Ether from <a href='https://faucets.chain.link/rinkeby'>here</a>  <br/>
+                1. Switch your metamask wallet to Mumbai Testnet. <a href='https://blog.pods.finance/guide-connecting-mumbai-testnet-to-your-metamask-87978071aca8' target="_blank">GUIDE</a>  <br/>
+                2. Get some Mumbai Test Matic from <a href='https://faucet.polygon.technology/' target="_blank">HERE</a>  <br/>
                 3. Connect Your Wallet. <br/>
                 4. Mint Your Invader. <br/>
                 5. Eliminate All Enemies. Dont get hit! <br/>
                 6. Claim Your Reward. <br/>               
+                7. Buy more Invaders in the marketplace or mint special upgrades with your SPACE tokens. <br/>               
               </p>
               <button style={{ width: '50%' }} onClick={ connectWallet }>CONNECT</button>
               <button style={{ width: '50%' }} onClick={ publicMint }>MINT</button>
@@ -1049,7 +923,7 @@ const GameScreen = () => {
                 and no one else can use your particular invader - unless you transfer it to them. <br/><br/>
 
                 <span style={{fontWeight:'bolder', color: '#6C63FF'}}>
-                  Add the token contract 0x33803B97F74397a3aE116693f577C58D9CC36d9A to your wallet to view your reward.
+                  Add the token contract 0xA1E217358E118A156446c02385591BB329194f82 to your wallet to view your reward.
                 </span>
               </p>
             </div>
@@ -1165,7 +1039,7 @@ const GameScreen = () => {
                   } 
                   key={index}
                 >
-                  <Meta className='nft-description' description={`PRICE: 100 SPACE`} />
+                  <Meta className='nft-description' description={`PRICE: 15 SPACE`} />
                   <Meta style={{ color: '#6C63FF' }} className='nft-description' description={JSON.parse(nft.metadata).attributes[0].value} />
                   <Meta style={{ color: '#6C63FF' }} className='nft-description' description={`${JSON.parse(nft.metadata).attributes[1].trait_type} : ${JSON.parse(nft.metadata).attributes[1].value}`} />
                   <button onClick={() => handleBoostClick(nft)}>MINT</button>
@@ -1175,7 +1049,7 @@ const GameScreen = () => {
           </div>
         </div>
       </div>
-      <Modal 
+      <BuyModal 
         showModal={showBuyModal} 
         setShowModal={setShowBuyModal} 
         buy={buy}
@@ -1189,9 +1063,9 @@ const GameScreen = () => {
         spendApproved={spendApproved}
         approveBalanceSpend={approveBalanceSpend}
       /> 
-      <ApproveModal 
-        showModal={showApproveModal} 
-        setShowModal={setShowApproveModal}
+      <ListModal 
+        showModal={showListModal} 
+        setShowModal={setShowListModal}
         setAskingPrice={setAskingPrice} 
         approveInvaders={approveInvaders}
         list={list}

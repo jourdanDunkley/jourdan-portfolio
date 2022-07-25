@@ -81,7 +81,7 @@ const CloseModalButton = styled(MdClose)`
 const metadataPrefix = 'https://gateway.pinata.cloud/ipfs/QmY6Dt2tu9THDQiHo4BkquwgvUZRgPYJBg9urvSNyBmaVo/';
 const metadataExt = '.png';
 
-export const Modal = ({ showModal, 
+export const BuyModal = ({ showModal, 
                         setShowModal, 
                         buy, 
                         isLoading, 
