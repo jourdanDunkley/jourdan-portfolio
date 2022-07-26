@@ -205,6 +205,10 @@ h2:hover {
   /* font-weight: 400; */
 }
 
+.mobile-nav {
+  display: none;
+}
+
 .side-nav h2 {
   font-weight: 200;
   font-size: 1.2rem;
@@ -609,6 +613,15 @@ textarea:focus {
   padding-right: 0.1rem;
 }
 
+.wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+}
+
 .skills-container {
   width: 100%;
 }
@@ -672,23 +685,107 @@ textarea:focus {
 
 @media (max-width: 1032px) {
   .screen-body {
-    margin-left: 10%;
+    /* margin-left: 10%; */
   }
   .nav-wrapper {
-    width: 50px;
+    width: 100%;
   }
 
   .nav-element img {
-    margin: 5%;
+    width: 40px;
   }
   .side-nav {
-    width: 50px;
+    display: none;
   }
   .side-nav h2 {
     display: none;
   }
-  .nav-element {
-    margin-left: 10%;
+  .mobile-nav {
+    display: flex;
+  }
+  .mobile-nav-items {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: absolute;
+    top: 80px;
+    right: 0;
+    width: 100%;
+    /* height: 1000px; */
+    background: rgba(0, 0, 0, 0.8);
+    /* background: 'blue'; */
+  }
+
+  .single-project-container {
+    flex-direction: column;
+  }
+
+  .single-project-container img {
+    max-width: 85%;
+  }
+
+  .bm-menu-wrap {
+    width: 70% !important;
+    top: 0;
+  }
+  .bm-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .bm-item:hover {
+    color: rgb(0, 0, 0);
+  }
+  .bm-burger-button {
+    position: fixed;
+    width: 36px;
+    height: 30px;
+    right: 36px;
+    top: 36px;
+    color: white;
+  }
+  /* Color/shape of burger icon bars */
+  .bm-burger-bars {
+    background: white;
+  }
+  /* Position and sizing of clickable cross button */
+  .bm-cross-button {
+    height: 24px;
+    width: 24px;
+  }
+  /* Color/shape of close button cross */
+  .bm-cross {
+    background: #bdc3c7;
+  }
+  /* General sidebar styles */
+  .bm-menu {
+    background: #000;
+    padding: 2.5em 1.5em 0;
+    font-size: 1.15em;
+  }
+  /* Morph shape necessary with bubble or elastic */
+  .bm-morph-shape {
+    fill: #373a47;
+  }
+  /* Wrapper for item list */
+  .bm-item-list {
+    color: #fff;
+    padding-top: 80px;
+  }
+  /* Styling of overlay */
+  .bm-overlay {
+    background: rgba(0, 0, 0, 0.3);
+    width: 100% !important;
+    top: 0;
+    left: 0;
+  }
+  /* .nav-element h2 {
+    color: white;
+  } */
+  .hamburger {
+    position: absolute;
+    right: 5%;
+    top: 15%;
   }
   .media-container {
     flex-direction: column;
@@ -713,8 +810,25 @@ textarea:focus {
     width: 75%;
   }
 
-  .single-project-container {
+  .single-project-text {
+    display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    /* position: relative; */
+  }
+
+  .single-project-container {
+    justify-content: center;
+  }
+  .single-project-container h3 {
+    text-align: center;
+  }
+  .single-project-container p {
+    margin-left: 0;
+  }
+  .project-container {
+    margin-top: 20%;
   }
 
   .single-project-container img {
@@ -770,20 +884,15 @@ textarea:focus {
   }
   .welcome-container {
     top: 25%;
-    left: 7.5%;
   }
   .about-container {
     top: 25%;
-    left: 7.5%;
   }
   .contact-wrapper {
     top: 25%;
-    left: 7.5%;
   }
-
   .experience-container {
-    top: 5%;
-    left: 7.5%;
+    top: 25%;
     flex-direction: column;
     align-items: flex-start;
   }
@@ -826,15 +935,6 @@ textarea:focus {
   }
 }
 
-
-.wrap {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  height: 100%;
-}
 
 .market-wrapper {
   display: flex;
@@ -1188,6 +1288,46 @@ footer {
   padding: 10px 40px;
   font: 14px sans-serif;
 }
+
+@media (max-width: 1032px) {
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 25%;
+    height: auto;
+  }
+  .game-instructions {
+    width: 100%;
+    margin-left: 0;
+    align-items: center;
+    /* margin-bottom: 0; */
+    /* padding-bottom: 0; */
+  }
+
+  .game-instructions p {
+    text-align: center;
+  }
+
+  .game-wrapper {
+    margin-left: 0;
+  }
+
+  .game-wrapper .game {
+    max-width: 350px;
+    max-height: 350px;
+  }
+
+  .nft-list {
+    align-items: center;
+    margin: 0;
+    flex-wrap: nowrap;
+    flex-direction: column;
+  }
+}
+
+
 @keyframes pop-in {
   0% {
     opacity: 0;

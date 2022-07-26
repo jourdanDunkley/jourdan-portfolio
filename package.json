@@ -21,6 +21,7 @@
     "phaser": "^3.55.2",
     "react": "^17.0.1",
     "react-bootstrap": "^1.5.2",
+    "react-burger-menu": "^3.0.8",
     "react-dom": "^17.0.1",
     "react-icons": "^4.4.0",
     "react-moralis": "^1.4.0",

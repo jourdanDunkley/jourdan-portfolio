@@ -1,5 +1,6 @@
 import { LinkContainer } from 'react-router-bootstrap'
 import React from 'react'
+import { HamburgerMenu } from './HamburgerMenu'
 
 const Navbar = ({ active }) => {
   return (
@@ -85,6 +86,7 @@ const Navbar = ({ active }) => {
           </LinkContainer>
         </div>
       </div>
+      <HamburgerMenu active={active} />
       {/* <div className='media-container'>
         <a href='/portfoliov1/#/contact'>
           <img src='./images/icons/footer-mail.svg' alt='mail'></img>

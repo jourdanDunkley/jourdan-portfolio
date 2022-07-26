@@ -7,8 +7,8 @@ const ExperienceScreen = () => {
     <div className='main-screen'>
       <Navbar active='Experience'></Navbar>
       <div className='screen-body'>
-        <div className='experience-container'>
-          <Fade left>
+        <Fade left>
+          <div className='experience-container'>
             <div className='experience-text-wrapper'>
               <h2 style={{ color: '#6C63FF' }}>Technical</h2> &nbsp;
               <h2 style={{ color: 'white' }}>
@@ -23,12 +23,8 @@ const ExperienceScreen = () => {
                 <p>Java | Solidity | Go</p>
               </div>
             </div>
-          </Fade>
-{/* 
-          <Fade right>
-            <BasicTimeLine></BasicTimeLine>
-          </Fade> */}
-        </div>
+          </div>
+        </Fade>
       </div>
     </div>
   )
