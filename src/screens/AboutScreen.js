@@ -22,6 +22,9 @@ const AboutScreen = () => {
                 it has for the future, and I&apos;ve applied my knowledge and skills of both project management and 
                 development to my own successful NFT project.
               </p>
+              <a href='https://docs.google.com/document/d/1EFvz8MOTx-MLJ9DtJNwGkMZBGKvtoJSBpc5yvH0GHC0/edit?usp=sharing' target='_blank'>
+                <button style={{ width: '50%' }} >View CV</button>
+              </a>
             </div>
           </div>
         </Fade>

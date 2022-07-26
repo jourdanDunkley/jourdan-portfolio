@@ -557,10 +557,14 @@ textarea {
   height: 10%;
   resize: none;
   transition: border-bottom 0.2s linear;
+  padding-left: 1rem !important;
+  padding-top: 0.7rem;
+  border-radius: 10px;
 }
 
 textarea::placeholder {
-  padding-left: 1rem !important;
+  /* padding-left: 1rem !important; */
+  /* padding-top: 0.5rem; */
   /* padding-top: 0.5rem !important; */
 }
 
@@ -569,6 +573,7 @@ textarea:focus {
 }
 .message-area {
   height: 35%;
+  border-radius: 10px;
 }
 
 .single-project-container {

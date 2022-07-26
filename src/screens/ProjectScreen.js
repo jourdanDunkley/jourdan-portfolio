@@ -28,7 +28,8 @@ const ProjectScreen = () => {
             description='I implemented a Staking system for Parrots of the Caribbean in which holders of the NFT can stake it for
             a an ERC-20 Token reward. This consisted of two contracts: The staking contract and the ERC-20 contract. I audited these
             contracts for security using slither and other automated tools, and I also manually audited them. I also optimized them
-            for gas to ensure a seamless user experience. Integrations with the frontend were done using ethers.js'
+            for gas to ensure a seamless user experience. Integrations with the frontend were done using ethers.js. Testing was done
+            in foundry.'
           ></ProjectComponent>
           <ProjectComponent
             name='Blockchain Invaders'
@@ -42,7 +43,8 @@ const ProjectScreen = () => {
             fully decentralized manner.
             The characters used in the game are ERC-721 tokens, points scored in the game
             can be redeemed as ERC-20 tokens called $SPACE, and boosts/upgrades can be minted as ERC-1155 tokens using your 
-            $SPACE. The game also features an open marketplace where you can buy and sell invaders using the $SPACE token.'
+            $SPACE. The game also features an open marketplace where you can buy and sell invaders using the $SPACE token.
+            Audits were done manually, and with static analyzer tool slither. Testing was done in foundry.'
           ></ProjectComponent>
           <ProjectComponent
             name='Laravel Bookstore'

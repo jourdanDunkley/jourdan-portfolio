@@ -8,12 +8,15 @@ import emailjs from 'emailjs-com'
 const ContactScreen = () => {
   dotenv.config()
   const [sent, setSent] = useState(false)
+  const [error, setError] = useState(false)
 
   const onSubmit = (e) => {
     e.preventDefault()
+    setError(false)
+    setSent(false)
     emailjs
       .sendForm(
-        'gmail',
+        process.env.REACT_APP_SERVICE_ID,
         process.env.REACT_APP_TEMPLATE_ID,
         e.target,
         process.env.REACT_APP_USER_ID
@@ -22,9 +25,11 @@ const ContactScreen = () => {
         (result) => {
           console.log(result.text)
           setSent(true)
+          e.target.reset();
         },
         (error) => {
           console.log(error.text)
+          setError(true)
         }
       )
   }
@@ -63,6 +68,7 @@ const ContactScreen = () => {
                   name='message'
                 ></textarea>
                 {sent && <p>Message has been sent!</p>}
+                {error && <p>Error! please try sending again.</p>}
                 <button
                   style={{
                     marginRight: '5%',
