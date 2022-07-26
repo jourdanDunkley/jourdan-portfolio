@@ -884,6 +884,9 @@ const GameScreen = () => {
             <div className="game-start" style={{ display: walletAddress ? 'none' : 'block' }}>
               <h1>CONNECT WALLET TO BEGIN</h1>
             </div>
+            <div className="play-on-desktop">
+              <h1>PLAY ON DESKTOP!</h1>
+            </div>
             <div className="game-start" style={{ display: walletAddress && !(gameStart || initialized) ? 'flex' : 'none' }}>
               <h1>SELECT YOUR INVADER</h1>
               <div className='invader-group'>
