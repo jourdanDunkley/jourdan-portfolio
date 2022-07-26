@@ -24,11 +24,25 @@ const ProjectScreen = () => {
             name='Parrots Of The Caribbean Staking'
             skills='React | Solidity | Foundry'
             image={process.env.PUBLIC_URL + '/images/potc-staking.png'}
-            github='https://github.com/jourdanDunkley/POTC-Staking'
+            github='https://parrotsofthecaribbean.com/stake'
             description='I implemented a Staking system for Parrots of the Caribbean in which holders of the NFT can stake it for
             a an ERC-20 Token reward. This consisted of two contracts: The staking contract and the ERC-20 contract. I audited these
             contracts for security using slither and other automated tools, and I also manually audited them. I also optimized them
             for gas to ensure a seamless user experience. Integrations with the frontend were done using ethers.js'
+          ></ProjectComponent>
+          <ProjectComponent
+            name='Blockchain Invaders'
+            skills='React | Solidity | Foundry'
+            image={process.env.PUBLIC_URL + '/images/blockchaininvaders.png'}
+            demo={'https://jourdandunkley.github.io/jourdan-portfolio/#/game'}
+            github='https://github.com/jourdanDunkley/BlockchainInvaders'
+            description='Blockchain Invaders is a game built on Polygon Mumbai Testnet that demonstrates the power of Web3 in gaming. 
+            Through the use of NFT technology, gamers are given complete ownership over their in-game 
+            assets in the form of NFTs. This means you can buy, sell or gift your in-game assets in a 
+            fully decentralized manner.
+            The characters used in the game are ERC-721 tokens, points scored in the game
+            can be redeemed as ERC-20 tokens called $SPACE, and boosts/upgrades can be minted as ERC-1155 tokens using your 
+            $SPACE. The game also features an open marketplace where you can buy and sell invaders using the $SPACE token.'
           ></ProjectComponent>
           <ProjectComponent
             name='Laravel Bookstore'
@@ -40,7 +54,7 @@ const ProjectScreen = () => {
             Due to the pandemic, foot traffic to a local bookstore has been diminished. This e-commerce 
             style web application was built in order to solve this problem. It is the intention that this 
             application will help drive sales and improve customer convenience.'
-          ></ProjectComponent>
+          ></ProjectComponent>    
         </div>
       </div>
     </div>
