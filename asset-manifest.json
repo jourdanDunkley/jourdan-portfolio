@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/jourdan-portfolio/static/css/main.977d9d7b.chunk.css",
+    "main.css": "/jourdan-portfolio/static/css/main.057e6c33.chunk.css",
     "main.js": "/jourdan-portfolio/static/js/main.b2593d36.chunk.js",
     "main.js.map": "/jourdan-portfolio/static/js/main.b2593d36.chunk.js.map",
     "runtime-main.js": "/jourdan-portfolio/static/js/runtime-main.11040d18.js",
@@ -10,7 +10,7 @@
     "static/js/3.9a7ffb3d.chunk.js": "/jourdan-portfolio/static/js/3.9a7ffb3d.chunk.js",
     "static/js/3.9a7ffb3d.chunk.js.map": "/jourdan-portfolio/static/js/3.9a7ffb3d.chunk.js.map",
     "index.html": "/jourdan-portfolio/index.html",
-    "static/css/main.977d9d7b.chunk.css.map": "/jourdan-portfolio/static/css/main.977d9d7b.chunk.css.map",
+    "static/css/main.057e6c33.chunk.css.map": "/jourdan-portfolio/static/css/main.057e6c33.chunk.css.map",
     "static/js/2.40a90ae6.chunk.js.LICENSE.txt": "/jourdan-portfolio/static/js/2.40a90ae6.chunk.js.LICENSE.txt",
     "static/media/sfx-laser1.f54bc707.ogg": "/jourdan-portfolio/static/media/sfx-laser1.f54bc707.ogg",
     "static/media/sfx-lose.8ed6055d.ogg": "/jourdan-portfolio/static/media/sfx-lose.8ed6055d.ogg"
@@ -18,7 +18,7 @@
   "entrypoints": [
     "static/js/runtime-main.11040d18.js",
     "static/js/2.40a90ae6.chunk.js",
-    "static/css/main.977d9d7b.chunk.css",
+    "static/css/main.057e6c33.chunk.css",
     "static/js/main.b2593d36.chunk.js"
   ]
 }
