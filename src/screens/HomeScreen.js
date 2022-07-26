@@ -18,7 +18,7 @@ const HomeScreen = () => {
             </h2>
             <br></br>
             <p>Frontend / Backend / Smart Contracts</p>
-            <a href='https://docs.google.com/document/d/1EFvz8MOTx-MLJ9DtJNwGkMZBGKvtoJSBpc5yvH0GHC0/edit?usp=sharing' target='_blank'>
+            <a href='https://jourdandunkley.github.io/jourdan-portfolio/#/contact'>
                 <button style={{ width: '50%', marginTop: '3rem' }} >Contact Me</button>
               </a>
           </div>
