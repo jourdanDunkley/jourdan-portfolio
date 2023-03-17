@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/jourdan-portfolio/static/css/main.9f71fc5d.chunk.css",
-    "main.js": "/jourdan-portfolio/static/js/main.628d6c80.chunk.js",
-    "main.js.map": "/jourdan-portfolio/static/js/main.628d6c80.chunk.js.map",
+    "main.js": "/jourdan-portfolio/static/js/main.26264fd6.chunk.js",
+    "main.js.map": "/jourdan-portfolio/static/js/main.26264fd6.chunk.js.map",
     "runtime-main.js": "/jourdan-portfolio/static/js/runtime-main.91fd7f17.js",
     "runtime-main.js.map": "/jourdan-portfolio/static/js/runtime-main.91fd7f17.js.map",
     "static/js/2.915b554f.chunk.js": "/jourdan-portfolio/static/js/2.915b554f.chunk.js",
@@ -19,6 +19,6 @@
     "static/js/runtime-main.91fd7f17.js",
     "static/js/2.915b554f.chunk.js",
     "static/css/main.9f71fc5d.chunk.css",
-    "static/js/main.628d6c80.chunk.js"
+    "static/js/main.26264fd6.chunk.js"
   ]
 }
