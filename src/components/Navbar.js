@@ -1,87 +1,105 @@
-import { LinkContainer } from 'react-router-bootstrap'
-import React from 'react'
-import { HamburgerMenu } from './HamburgerMenu'
+import { LinkContainer } from "react-router-bootstrap";
+import React from "react";
+import { HamburgerMenu } from "./HamburgerMenu";
 
 const Navbar = ({ active }) => {
   return (
-    <div className='nav-wrapper'>
-      <div className='side-nav'>
+    <div className="nav-wrapper">
+      <div className="side-nav">
         <div
           className={
-            active === 'Home' ? 'nav-element active-header' : 'nav-element'
+            active === "Home" ? "nav-element active-header" : "nav-element"
           }
         >
-          <LinkContainer to='/'>
-            <img src={process.env.PUBLIC_URL + '/images/icons/home.svg'} alt='home'></img>
+          <LinkContainer to="/">
+            <img
+              src={process.env.PUBLIC_URL + "/images/icons/home.svg"}
+              alt="home"
+            ></img>
           </LinkContainer>
-          <LinkContainer to='/'>
+          <LinkContainer to="/">
             <h2>Home</h2>
           </LinkContainer>
         </div>
         <div
           className={
-            active === 'About' ? 'nav-element active-header' : 'nav-element'
+            active === "About" ? "nav-element active-header" : "nav-element"
           }
         >
-          <LinkContainer to='/about'> 
-            <img src={process.env.PUBLIC_URL + '/images/icons/about.svg' } alt='about'></img>
+          <LinkContainer to="/about">
+            <img
+              src={process.env.PUBLIC_URL + "/images/icons/about.svg"}
+              alt="about"
+            ></img>
           </LinkContainer>
-          <LinkContainer to='/about'>
+          <LinkContainer to="/about">
             <h2>About</h2>
           </LinkContainer>
         </div>
         <div
           className={
-            active === 'Experience'
-              ? 'nav-element active-header'
-              : 'nav-element'
+            active === "Projects" ? "nav-element active-header" : "nav-element"
           }
         >
-          <LinkContainer to='/skills'>
-            <img src={process.env.PUBLIC_URL + '/images/icons/skills.svg'} alt='skills'></img>
-          </LinkContainer>
-          <LinkContainer to='/skills'>
-            <h2>Skills</h2>
-          </LinkContainer>
-        </div>
-        <div
-          className={
-            active === 'Projects' ? 'nav-element active-header' : 'nav-element'
-          }
-        >
-          <LinkContainer to='/projects'>
-            <img src={process.env.PUBLIC_URL + '/images/icons/projects.svg'} alt='projects'></img>
+          <LinkContainer to="/projects">
+            <img
+              src={process.env.PUBLIC_URL + "/images/icons/projects.svg"}
+              alt="projects"
+            ></img>
           </LinkContainer>
 
-          <LinkContainer to='/projects'>
+          <LinkContainer to="/projects">
             <h2>Projects</h2>
           </LinkContainer>
         </div>
+        <div
+          className={
+            active === "Experience"
+              ? "nav-element active-header"
+              : "nav-element"
+          }
+        >
+          <LinkContainer to="/skills">
+            <img
+              src={process.env.PUBLIC_URL + "/images/icons/skills.svg"}
+              alt="skills"
+            ></img>
+          </LinkContainer>
+          <LinkContainer to="/skills">
+            <h2>Skills</h2>
+          </LinkContainer>
+        </div>
 
         <div
           className={
-            active === 'Contact' ? 'nav-element active-header' : 'nav-element'
+            active === "Contact" ? "nav-element active-header" : "nav-element"
           }
         >
-          <LinkContainer to='/contact'>
-            <img src={process.env.PUBLIC_URL + '/images/icons/contact.svg'} alt='contact'></img>
+          <LinkContainer to="/contact">
+            <img
+              src={process.env.PUBLIC_URL + "/images/icons/contact.svg"}
+              alt="contact"
+            ></img>
           </LinkContainer>
 
-          <LinkContainer to='/contact'>
+          <LinkContainer to="/contact">
             <h2>Contact</h2>
           </LinkContainer>
         </div>
 
         <div
           className={
-            active === 'Game' ? 'nav-element active-header' : 'nav-element'
+            active === "Game" ? "nav-element active-header" : "nav-element"
           }
         >
-          <LinkContainer to='/game'>
-            <img src={process.env.PUBLIC_URL + '/images/icons/controller.svg'} alt='contact'></img>
+          <LinkContainer to="/game">
+            <img
+              src={process.env.PUBLIC_URL + "/images/icons/controller.svg"}
+              alt="contact"
+            ></img>
           </LinkContainer>
 
-          <LinkContainer to='/game'>
+          <LinkContainer to="/game">
             <h2>Game</h2>
           </LinkContainer>
         </div>
@@ -102,7 +120,7 @@ const Navbar = ({ active }) => {
       </div> */}
       {/* <div></div> */}
     </div>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
