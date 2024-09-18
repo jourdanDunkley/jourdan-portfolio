@@ -13,10 +13,7 @@ const AboutScreen = () => {
             <div className="about-text">
               <h2 style={{ color: "#6C63FF" }}>About</h2> &nbsp;
               <h2 style={{ color: "white" }}>me.</h2>
-              <p>
-                I&apos;m Jourdan - A passionate fullstack developer from
-                Jamaica, and graduate of the University of the West Indies.
-              </p>
+              <p>I&apos;m Jourdan - A passionate defi developer.</p>
               <p>
                 I am a self-motivated, independent learner and avid enthusiast
                 of Blockchain Technology. I&apos;ve spent a lot of time in the
